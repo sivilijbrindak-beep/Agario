@@ -30,8 +30,11 @@ fon = pygame.image.load("fon.png")
 fon = pygame.transform.scale(fon, (WIDTH, HEIGHT))
 
 # гравець
-player = Player(x=WHITE//2, y=HEIGHT//2, radius=20, speed=5,
+player = Player(x=WIDTH/2, y=HEIGHT//2, radius=20, speed=5,
                 color=GREEN)
+
+# їжа
+foods = [food() for _ in range(300)]
 
 
 # Змінна для керування роботою гри
@@ -59,6 +62,12 @@ while run:
     fon_x%=WIDTH
     fon_y%=HEIGHT
 
+# Оновлюємо позицію їжі відносно гравця на екрані
+    for food in foods:
+        food.update(player)
+        food.draw(window)
+        if food.eat_my(player):
+            foods.remove(food)
     # Перебираємо всі події (натискання клавіш, закриття вікна тощо)
     for event in pygame.event.get():
 
