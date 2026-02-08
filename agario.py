@@ -1,3 +1,4 @@
+from kivy.uix.behaviors.togglebutton import ref
 # Імпортуємо бібліотеку для створення ігор
 import pygame  # Імпорт Pygame для графіки
 
@@ -8,8 +9,9 @@ from random import randint  # Генерація випадкових чисел
 from my_class import*  # Класи Player, Food
 
 '''1. Імпортуємо модулі для мережі і потоків'''
-from socket import socket, AF_INET,SOCK_STREAM  # socket для роботи з сервером
-from threading import Thread # Thread для паралельного отримання даних
+
+from socket import socket,AF_INET,SOCK_STREAM  # socket для роботи з сервером
+from threading import Thread  # Thread для паралельного отримання даних
 
 ''''''''''''
 
@@ -37,7 +39,7 @@ fon = pygame.transform.scale(fon,(WIDTH,HEIGHT))
 
 # Гравець
 player = Player(x=WIDTH//2,y=HEIGHT//2,radius=20,
-                speed=5,color=((randint(0,255)),randint(0,255),randint(0,255)),nickname="ola-la")
+                speed=5,color=((randint(0,255)),randint(0,255),randint(0,255)))
 
 # Їжа
 foods = [Food() for i in range(300)]
@@ -48,19 +50,23 @@ run = True
 fon_x,fon_y = 0,0
 
 '''2. Початкові координати "світу"(цент екрану) та словник інших гравців(порожній), змінна для буфера'''
-word_x, word_y = 0,0
-other_player = {}  #id:{x:x, y:y, r:r, c:c}
+
+word_x, word_y =0,0
+other_player = {}   #id:{x:x, y:y, r:r, c:c}
 buffer = ""
-nickname = "ola-la"
+nicknane = "vl8d"
 
 '''3. Налаштовуємо сокет клієнта'''
 ''''''
-client = socket(AF_INET,SOCK_STREAM ) # створити сокет
-client.connect(("6.tcp.eu.ngrok.io",13371))#зв'язатись із сервером
+client = socket(AF_INET,SOCK_STREAM)  # створити сокет
+client.connect(("6.tcp.eu.ngrok.io",14414)) #зв'язатись із сервером
+R,G,B = player.color
+my_data = f"{(word_x)}|{(word_y)}|{(player.radius)}|{R}|{G}|{B}|{nicknane}"  # формує рядок з моїми даними - регеструємось в грі, незабудь про символ кінця рядка!
+client.send(my_data.encode()) # надсилаємо мої дані на сервер
 ''''''
 
 '''3.Функція для оновлення даних інших гравців для потоку, постійного оновлення '''
-def update_players():
+def upfate_players():
     # доступ до змінної буфера
     global buffer
     # цикл завжди для прийому даних від серевра
@@ -79,45 +85,40 @@ def update_players():
             # поки символ кінця рядка є у буфері
             while "\n" in buffer:
                 #розбити буфер на два значення по символу кінця рядка
-                line, buffer = buffer.split("\n",1)
+                line, buffer  = buffer.split("\n",1)
                 #якщо повідомлення порожнє - пропустити
                 if not line:
                     continue
                     
                 # розбити на частини повідомлення в одну зміну-список!
                 # щоб впевнитись що все є і нічого зайвого немає    
-                parts = line.split("|") 
-                '''перевірити якщо там два значення та друге значення exit
-                то це повідомлення про відключення клієнта,
-                де перше значення - це айді клієнта, а друге значення - це слово exit
-                якщо це так, то видалити цього клієнта зі словника інших гравців та пропустити далі'''
-                #if
+                parts = line.split("|")
                 #перевірити чи все є - потрібно 7 значень
                 #айді, ч, у, радійс, колір - 3 значення
                 if len(parts)!= 8:
-                    continue 
+                    continue
                 # розпкаовуємо список в окремі змінін
-                ids,x,y,radius,R,G,B,nickname = parts
+                ids,x,y,r,R,G,B,nicknane, = parts
                 # перетворити окремі значення кольору в кортеж
-                color =(int(R),int(G),int(B))
+                color = (int (R),int (G),int (B))
                 #онвоити дані в словнику інших гравців
                 other_player [ids] = {
-                    "x":int(x),
-                    "y":int(y),
-                    "r":int(radius),
-                    "color":color,
-                    "nick": nickname
+                   "x":int(x),
+                   "y":int(y), 
+                   "r":int(r), 
+                   "color":color  
+                   "nick":(nicknane)         
+                              
                 }
 
         except:
             pass
 #запустити потік на прйимо даних
-Thread(target=update_players,daemon=True).start()
+Thread(target=upfate_players,daemon=True).start()
 
 ''''''  
-
-font = pygame.font.Font(None, 16)
 # Головний цикл гри
+font = pygame.font.Font(None, 16)
 while run:
 
     # Зафарбовуємо екран чорним кольором
@@ -130,12 +131,10 @@ while run:
     word_y += player.move_y
     # формуємо рядко з моїми даними
     #!незабудь по симовл кінця рядка - \n
-    R,G,B = player.color
-    my_data = f"{word_x}|{word_y}|{player.radius}|{R}|{G}|{B}|{nickname}\n"  # формує рядок з моїми даними - регеструємось в грі, незабудь про символ кінця рядка!
-
+    my_data = f"{(word_x)}|{(word_y)}|{(player.radius)}|{R}|{G}|{B}|{nicknane}"  # формує рядок з моїми даними - регеструємось в грі, незабудь про символ кінця рядка!
     # спробуємо відправити серверу наші дані
     try:
-        client.send(my_data.encode()) #відправити усе
+        client.send(my_data.encode())#відправити усе
     except (BlockingIOError, BrokenPipeError):
         pass
     ''''''
@@ -161,21 +160,16 @@ while run:
         # розраховуємо координати гравця 
         # відносно камери + половина камери
         # відносно нас -наші координати в світі
-        x = player_data["x"] + WIDTH//2 - word_x
-        y = player_data["y"]  + HEIGHT//2 - word_y
+        x = player_data["x"] - word_x +WHITE//2
+        y = player_data["y"] - word_y +HEIGHT//2
         #малюємо коло за координатами, радіус та колір зі словникі
-
         pygame.draw.circle(window,player_data["color"],(x,y),player_data["r"])
-        name = font.render(player_data["nick"],True,(0,0,0))
-        window.blit(name,(x,y-player_data["r"]-8))
-        rect = pygame.Rect(x - player_data["r"],y - player_data["r"],
-                           player_data["r"] * 2 ,player_data["r"] * 2)
-        if player.rect.colliderect(rect):
-            '''порівняти радіуси гравців, 
-            якщо наш радіус більший - збільшити свій радіус на радіус іншого гравця(викликати метод зміни розміру гравця)
-            інакше - програти, тобто закрити клієнта та вийти з гри'''
+        name = font.render(player_data["nick"],True,WHITE)
+        window.blit(name,[x.y+player_data["r"]])
+        rect = pygame.Rect(x - player_data["r"],y - player_data["r"],player_data["r"] * 2, player_data["r"]*2)
+        if player.rect.collidedict(rect):
             pass
-        # викликати метод гравця для перевірки зіткнення з іншим гравцем
+            # викликати метод гравця для перевірки зіткнення з іншим гравцем
         #передати координати та радіус іншого гравця
         # отримаємо виграв/програв
         #якщо інший гравець програв - видалити відправити повідомення на серевр
