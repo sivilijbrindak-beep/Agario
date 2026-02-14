@@ -6,13 +6,16 @@ from random import randint
 
 # Імпортуємо всі класи та функції з файлу my_class.py
 from my_class import*
-
+from launcher import Launcher
 # Ініціалізуємо всі модулі Pygame
 pygame.init()
 
 # Задаємо ширину і висоту вікна гри
 WIDTH, HEIGHT = 500, 500
-
+menu = Launcher()
+menu.window_start()
+nickname = menu.nick
+port = menu.port
 # Описуємо коліри у форматі RGB
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
