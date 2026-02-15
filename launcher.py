@@ -41,7 +41,8 @@ class Launcher(CTk):
         self.geometry("500x500") # Встановлюємо розмір вікна
         self.title("Agario")  # Встановлюємо заголовок вікна
         self.iconbitmap("icon.ico")  # Встановлюємо іконку вікна
-
+        self.end = False
+        self.restart = False
         # Створюємо Canvas для фону та анімації кол
         self.fon = CTkCanvas(self, width=500, height=500, bg = "#090e62", highlightthickness=0)
         self.fon.pack(fill="both") # Розтягуємо Canvas на весь простір вікна
@@ -60,38 +61,38 @@ class Launcher(CTk):
     # Метод для відображення стартового вікна
     def window_start(self):
         # Додаємо картинки по обидва боки назви
-        img1 = CTkLabel(text="",image=CTkImage(Image.open("flash.png"),size=(30,30)))
-        img2 = CTkLabel(text="",image=CTkImage(Image.open("flash.png"),size=(30,30)))
-        img1.place(x = 50, y = 100)
-        img2.place(x = 200, y = 100)
+        img1 = CTkLabel(self.fon,text="",image=CTkImage(Image.open("flash.png"),size=(30,30)))
+        img2 = CTkLabel(self.fon,text="",image=CTkImage(Image.open("flash.png"),size=(30,30)))
+        img1.place(x = 189, y = 100)
+        img2.place(x = 280, y = 100)
         # Додаємо заголовок гри
         lbl = CTkLabel(self.fon,text="Agario",font=("Arial",20),text_color="#fff06b") 
-        lbl.place(x = 100, y = 100)
+        lbl.place(x = 220, y = 100)
         # Поле для введення ніка
         self.nick_entry = CTkEntry(self.fon,width=100,height=40,corner_radius=20,
                                    placeholder_text="nick",fg_color="#b92411")
-        self.nick_entry.place(x=100, y = 200)
+        self.nick_entry.place(x=200, y = 200)
         # Поле для введення IP сервера
         self.ip_entry = CTkEntry(self.fon,width=100,height=40,corner_radius=20,
                                    placeholder_text="ip",fg_color="#b92411")
-        self.ip_entry.place(x = 100, y = 250)
+        self.ip_entry.place(x = 200, y = 250)
         # Поле для введення порту
         self.port_entry = CTkEntry(self.fon,width=100,height=40,corner_radius=20,
                                    placeholder_text="port",fg_color="#b92411")
-        self.port_entry.place(x = 100, y = 300)
+        self.port_entry.place(x = 200, y = 300)
 
         # Кнопка старту гри
         start_btn = CTkButton(self.fon,text="start",fg_color="#7E38DA",
                               command=self.start_game)
-        start_btn.place(x = 100, y = 400)
+        start_btn.place(x = 180, y = 400)
 
         self.mainloop()  # Запускаємо головний цикл Tkinter
 
     # Метод для відображення кінця гри
     def window_end(self):
         # Додаємо картинки по обидва боки назви
-        img1 = CTkLabel(text="",image=CTkImage(Image.open("flash.png"),size=(30,30)))
-        img2 = CTkLabel(text="",image=CTkImage(Image.open("flash.png"),size=(30,30)))
+        img1 = CTkLabel(self.fon,text="",image=CTkImage(Image.open("flash.png"),size=(30,30)))
+        img2 = CTkLabel(self.fon,text="",image=CTkImage(Image.open("flash.png"),size=(30,30)))
         img1.place(x = 50, y = 100)
         img2.place(x = 200, y = 100)
         # Додаємо заголовок гри
@@ -127,8 +128,8 @@ class Launcher(CTk):
     # Метод для обробки старту гри
     def start_game(self):
         self.nick = self.nick_entry.get() # Зчитуємо нік гравця
-        self.ip = self.nick_entry.get()     # Зчитуємо IP
-        self.port = self.nick_entry.get()  # Зчитуємо порт
+        self.ip = self.ip_entry.get()     # Зчитуємо IP
+        self.port = self.port_entry.get()  # Зчитуємо порт
         # Перевірка, чи всі поля заповнені
         if    self.nick and  self.ip and self.port:
             self.destroy() # Закриваємо стартове вікно
